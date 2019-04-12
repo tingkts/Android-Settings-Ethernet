@@ -1,0 +1,37 @@
+From 4cfdd5630f431405905c6101d6ff449997f55559 Mon Sep 17 00:00:00 2001
+From: tingsung <tingsung@msi.com>
+Date: Fri, 12 Apr 2019 10:20:52 +0800
+Subject: [PATCH] impl. Settings Ethernet entry
+
+---
+ core/java/android/provider/Settings.java | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+ mode change 100755 => 100644 core/java/android/provider/Settings.java
+
+diff --git a/core/java/android/provider/Settings.java b/core/java/android/provider/Settings.java
+old mode 100755
+new mode 100644
+index 89f20824a07..f278bb3f410
+--- a/core/java/android/provider/Settings.java
++++ b/core/java/android/provider/Settings.java
+@@ -12983,6 +12983,17 @@ public final class Settings {
+          */
+         public static final String GNSS_HAL_LOCATION_REQUEST_DURATION_MILLIS =
+                 "gnss_hal_location_request_duration_millis";
++
++
++        /** @hide */public static final String ETHERNET_MODE = "dhcp";
++        /** @hide */public static final String ETHERNET_STATIC_IP = "ethernet_static_ip";
++        /** @hide */public static final String ETHERNET_STATIC_DNS = "ethernet_static_dns";
++        /** @hide */public static final String ETHERNET_STATIC_GATEWAY = "ethernet_static_gateway";
++        /** @hide */public static final String ETHERNET_STATIC_MASK = "ethernet_static_mask";
++        /** @hide */public static final String ETHERNET_PROXY_MODE_ON = "ethernet_proxy_mode_on";
++        /** @hide */public static final String ETHERNET_PROXY_IP = "ethernet_proxy_IP";
++        /** @hide */public static final String ETHERNET_PROXY_PORT = "ethernet_proxy_port";
++        /** @hide */public static final String ETHERNET_BY_PASS_PROXY = "ethernet_by_pass_proxy";
+     }
+ 
+     /**
+-- 
+2.21.0
+

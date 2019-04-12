@@ -1,0 +1,2066 @@
+From ca0f7794543e1cab78ff7610a17c432b8659070f Mon Sep 17 00:00:00 2001
+From: tingsung <tingsung@msi.com>
+Date: Sat, 13 Apr 2019 00:37:43 +0800
+Subject: [PATCH] impl. Settings Ethernet entry
+
+Change-Id: I6a02c3b18ac5480ee3e49290b32219adf90a3d50
+---
+ AndroidManifest.xml                                |  21 +
+ res/drawable-hdpi/ic_ethernet_nor.png              | Bin 0 -> 3483 bytes
+ res/drawable-mdpi/ic_ethernet_nor.png              | Bin 0 -> 3318 bytes
+ res/drawable-xhdpi/ic_ethernet_nor.png             | Bin 0 -> 3619 bytes
+ res/drawable-xxhdpi/ic_ethernet_nor.png            | Bin 0 -> 3864 bytes
+ res/drawable-xxxhdpi/ic_ethernet_nor.png           | Bin 0 -> 3975 bytes
+ res/drawable/ic_ethernet.xml                       |   4 +
+ res/layout/advanced_setting.xml                    |  97 ++++
+ res/layout/eth_configure.xml                       | 144 ++++++
+ res/values/strings.xml                             |  49 ++
+ res/xml/ethernet_settings.xml                      |  16 +
+ res/xml/network_and_internet.xml                   |  11 +
+ src/com/android/settings/Settings.java             |   1 +
+ .../settings/core/gateway/SettingsGateway.java     |   2 +
+ .../settings/ethernet/EthernetAdvDialog.java       | 159 +++++++
+ .../settings/ethernet/EthernetConfigDialog.java    | 190 ++++++++
+ .../android/settings/ethernet/EthernetDevInfo.java | 145 ++++++
+ .../android/settings/ethernet/EthernetEnabler.java |  49 ++
+ .../android/settings/ethernet/EthernetManager.java | 525 +++++++++++++++++++++
+ .../settings/ethernet/EthernetSettings.java        |  84 ++++
+ 20 files changed, 1497 insertions(+)
+ create mode 100644 res/drawable-hdpi/ic_ethernet_nor.png
+ create mode 100644 res/drawable-mdpi/ic_ethernet_nor.png
+ create mode 100644 res/drawable-xhdpi/ic_ethernet_nor.png
+ create mode 100644 res/drawable-xxhdpi/ic_ethernet_nor.png
+ create mode 100644 res/drawable-xxxhdpi/ic_ethernet_nor.png
+ create mode 100644 res/drawable/ic_ethernet.xml
+ create mode 100644 res/layout/advanced_setting.xml
+ create mode 100644 res/layout/eth_configure.xml
+ create mode 100644 res/xml/ethernet_settings.xml
+ create mode 100644 src/com/android/settings/ethernet/EthernetAdvDialog.java
+ create mode 100644 src/com/android/settings/ethernet/EthernetConfigDialog.java
+ create mode 100644 src/com/android/settings/ethernet/EthernetDevInfo.java
+ create mode 100644 src/com/android/settings/ethernet/EthernetEnabler.java
+ create mode 100644 src/com/android/settings/ethernet/EthernetManager.java
+ create mode 100644 src/com/android/settings/ethernet/EthernetSettings.java
+
+diff --git a/AndroidManifest.xml b/AndroidManifest.xml
+index 5c0256b..b53f7f6 100644
+--- a/AndroidManifest.xml
++++ b/AndroidManifest.xml
+@@ -250,6 +250,27 @@
+         </activity>
+ 
+         <activity
++            android:name="Settings$EthernetSettingsActivity"
++            android:label="@string/ethernet"
++            android:icon="@drawable/ic_ethernet_nor"
++            android:configChanges="orientation|keyboardHidden|screenSize"
++            android:taskAffinity="com.android.settings"
++            android:parentActivityName="Settings">
++            <intent-filter android:priority="1">
++                <action android:name="android.settings.ETHERNET_SETTINGS" />
++                <category android:name="android.intent.category.DEFAULT" />
++            </intent-filter>
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++                <category android:name="android.intent.category.DEFAULT" />
++                <category android:name="android.intent.category.VOICE_LAUNCH" />
++                <category android:name="com.android.settings.SHORTCUT" />
++            </intent-filter>
++            <meta-data android:name="com.android.settings.FRAGMENT_CLASS"
++                android:value="com.android.settings.ethernet.EthernetSettings" />
++        </activity>        
++
++        <activity
+             android:name=".wifi.WifiPickerActivity"
+             android:taskAffinity="com.android.settings"
+             android:parentActivityName="Settings">
+diff --git a/res/drawable-hdpi/ic_ethernet_nor.png b/res/drawable-hdpi/ic_ethernet_nor.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..8c853e893fabe533836bb84f724a8d68cdcbbcec
+GIT binary patch
+literal 3483
+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
+JPDHLkV1io;q-p>F
+
+literal 0
+HcmV?d00001
+
+diff --git a/res/drawable-mdpi/ic_ethernet_nor.png b/res/drawable-mdpi/ic_ethernet_nor.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..3efcfa0c9213d96f8f8f677b8e89fb096271c957
+GIT binary patch
+literal 3318
+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
+AC;$Ke
+
+literal 0
+HcmV?d00001
+
+diff --git a/res/drawable-xhdpi/ic_ethernet_nor.png b/res/drawable-xhdpi/ic_ethernet_nor.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..74894b60d07670f9631ecd103ca03da444a11499
+GIT binary patch
+literal 3619
+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
+
+literal 0
+HcmV?d00001
+
+diff --git a/res/drawable-xxhdpi/ic_ethernet_nor.png b/res/drawable-xxhdpi/ic_ethernet_nor.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..43f8d0c1f5b5cd7351aadf73d40794800cc91c2c
+GIT binary patch
+literal 3864
+zcmV+z59jcSP)<h;3K|Lk000e1NJLTq002$^002k`1^@s6So6aG00009a7bBm000XU
+z000XU0RWnu7ytkYO=&|zP*7-ZbZ>KLZ*U+<Lqi~Na&Km7Y-Iodc-oy)cUY767Czti
+zWe-+D*zmEJY=HnGBdiF>5Lu!Sk^o_Z5E4Meg@_7P6crJiNL9pw)e1<Rh~l6qxMx9%
+zh+2zPTsZC@+^4mDdhhM+``7!t=bY#K&Uw!dfDsZVk>;Xm069{HJUZAPk55R%$-RIA
+z6-eL&AQ0xu!e<4=008g<d3b(wus{3(uWtYX0C3eVBofEr|AV?vCRYF;kpSQ#66Xs6
+zkWv81E>y@A0LT~suv4>S3ILP<0Bm`DLLvaF4FK%)Nj?Pt*r}7;7Xa9z9H|HZjR63e
+zC`Tj$K)V27Re@400>HumpsYY5E(E}?0f1SyGDiY{y#)Yvj#!WnKwtoXnL;eg03bL5
+z07D)V%>y7z1E4U{zu>7~aD})?0RX_umCct+(lZpemCzb@^6=o|A>zVpu|i=NDG+7}
+z<RYAxn<EoQ=L1a63;+Nc`O(4tI6si*=H%h#X6J10^u?n7Yw&L(J|Xen{=AF=1OO0D
+z&+pn_<>l4`aK{0#b-!z=TL9Wt0BGO&T{GJWpjryhdijfaIQ&2!o}p04JRKYg3k&Tf
+zVxhe-<BLB3GvROGi+=X}Kpy_vdhh^onn0PYz@vlxaba$Du2PQY%LGC(ZujRS{>O!X
+z{f;To;xw^bEES6JSc$k$B2CA6xl)ltA<32E66t?3@gJ7`36pmX0IY^jz)rRYwaaY4
+ze(nJRiw;=Qb^t(r^DT@T3y}a2XEZW-_W%Hszxj_qD**t_m!#tW0KDiJT&R>6OvVTR
+z07RgHDzHHZ48atvzz&?j9lXF70$~P3Knx_nJP<+#<bWIsp%|7y8C1YJ*aWq(0~(+a
+zn&A+%!7(@u=im}tf$MM=24EPT!Wg`U2?RmN2oqr;I*1Wsj@Tm32p5@-1R`NbG?IX%
+zAnAw{Q6k02a-;&OLTZs+NF(wsauhj@TtNDe+sGg?iu{VaM=_LvvQY!n0(C&Ss2>`N
+z#-MZ2bTkiLfR>_b(HgWKJ%F~Nr_oF3b#wrIijHG|(J>BYjM-sajE6;FiC7vY#};Gd
+zST$CUHDeuEH+B^pz@B062qXfFfD`NpUW5?BY=V%GM_5c)L#QR}BeW8_2v-S%gfYS=
+zB9o|3v?Y2H`NVi)I<b&gMyw|8As!)~C0-{E6JL`^Bo4`v<W349C6F>n3rTB8+ej^>
+zQ=~r95NVuDChL%G$=>7$vVg20myx%S50Foi`^m%Pw-h?Xh~i8Mq9jtJloCocWk2Nv
+zrJpiFnV_ms&8eQ$2&#xWpIS+6pmtC%Q-`S&G<BLK&6^fO%cL!%)zF%0XKD9nFX?o;
+z3EhJpMVHW*(rf4k>F4Q#^mhymh7E(qNMa}%YZ-ePrx>>xFPTiH1=E+A$W$=bG8>s^
+zm=Bn5Rah$aDtr}@$`X}2l~$F0mFKEdRdZE8)p@E5RI61Ft6o-prbbn>P~)iy)E2AN
+zsU20jsWz_8Qg>31P|s0cqrPALg8E|(vWA65poU1JRAaZs8I2(p#xiB`SVGovRs-uS
+zYnV-9TeA7=Om+qP8+I>yOjAR1s%ETak!GFdam@h^#<Ae=IoX^_&LPeX&U-BbEk7->
+z)@rS0t$wXH+Irf)+G6c;?H29p+V6F6oj{!|o%K3xI`?%6x;DB|x`n#ib<gTP(_`y-
+z=?V49^$zLX(MR=d^rQ6`>hIR?(H}Q3Gzd138Ei2)WAMz7W9Vy`X}HnwgyE<W%V@fh
+z#Au_@NuwvYChmu4<285}K4z?M9Ad0A-euftJYiyKGTWrYq{ZaEDb18?nr6Duw9|CV
+z%*ZU<tk|r{?2b9roNJz8zS+Fn{EdaBMV!S-i#ChLmfDtl%LSHAmiMffRz6mFR`pib
+ztVz~f>n!VS)>mv$8&{hQn>w4zwy3R}t;BYlZQm5)6pty=DfLrs+A-|>><a9f>;~;Q
+z_F?uV_HFjh9n2gO9o9Q^JA86<b<B2baJ=iJ;WWdk#HqvSS7#e%p>v({H5aB!kjoO6
+zc9$1ZZKsN-Zl8L~mE{`ly3)1N^`o1+o7}D0ZPeY&J;i;i`%NyJ8_8Y6J?}yE@b_5a
+zam?eLr<<q3^N{B+UUpttUi-ZsPqUmRp4KpJ$lJtQ;JwRxU^+fMW%|zP13tz+0-t)H
+zhrXu1BHul}BYxI?nSKZSp8Grc%l(h|zu|fE7V%C6U;)7a<pI5c8iBI|YXctynFOT=
+zH3f|Yy9O@|J{3X?2@P2va+7bs7xEkVV>8@mESk|3$_SkmS{wQ>%qC18))9_|&j{ZT
+zes8AvOzF(F2#DZEY>2oYX&IRp`F#{ADl)1r>QS^)ba8a|EY_^#S^H<bj`5GFjJZ48
+zYPNEAXRK;$Qfy=Fo4A0us<?r8hxkSDmlAXnBnj<_<iyy-J&EIU0_SX+Go0j_RF-sO
+zuI1dKxfkZ?&dZ*6JXtkakbF3Wm=c$=KjniULQpRlPvxg>O&t^Rgqwv=MZThqqEWH8
+zxJo>d=ABlR_Bh=;eM9<ahEGOy#xn^|QY(3p8Irjp^G#Mn*50ho*>Tw|Ih34~oTE|=
+zX_mAr*D$vzw@+p(E0Yc6dFE}(8<U61_v9n_bMxC3Y=unGqqI`4P!1MMFQ_YcTNqn-
+zxJbQ7TGTV&X8!8=BMX8Se7%scP`I$O*tmFE@!%rAMY|Rwi&GbOE-_tFx@351@X~$D
+zXv?ye{ZQgqQdRP5dED}jQiIZ^r9&%%S2UHWl*!9(uJl^DV-;bQWL58Km(^QVe<~N1
+zU#xJfsIK_1M!4qUS59BmeD!&4+S=Yqx61A7Nb98QZmjoNzpqNYYC+Y|hVTuo8}W_h
+z8((co-gKdQYW0rIw9U%R12tha?OV*YtlRRTHly}>oqt`+R{gE3x4zjX+Sb3_cYE^=
+zgB=w+-tUy`ytONMS8KgRef4hA?t<Nq8e$u|zvh13xJP$S#h#CQrF#eVMeplsbZ>0j
+zufM;t32jm~jUGrkaOInTZ`zyfns>EuS}G30LFK_G-==(f<51|K&cocp&EJ`SxAh3?
+zNO>#LI=^+SEu(FqJ)ynt=!~PC9bO$rzPJB=?=j<Jb;mW2SDv7qC_VA{<bspqr(~y|
+zolZYJ)S29Q_e}hmYh6)Yy=Ozuo<A3K?o78|_sR3#=Z{_Rym0g)_hQ>6w@a-(u02P7
+zaQ)#(uUl{HW%tYNS3ItC^iAtK(eKlL`f9+{bJzISE?u8_z3;~C8@FyI-5j_jy7l;W
+z_U#vU3hqqYU3!mrul&B+{ptt$59)uk{;_4iZQ%G|z+lhASr6|H35TBkl>gI*;nGLU
+zN7W-nBaM%pA0HbH8olyl&XeJ%vZoWz%6?Y=dFykl=imL}`%BMQ{Mhgd`HRoLu6e2R
+za__6DuR6yg#~-}Tc|Gx_{H@O0eebyMy5GmWADJlpK>kqk(fVV@r_fLLKIeS?{4e)}
+z^ZO;zpECde03c&XQcVB=dL;k=fP(-4`Tqa_faw4Lbua(`>R<o>I+y?e7jKeZ#YO-C
+z1Vu?iK~#9!?3_tx6hRb*zs@pF5)5i2xJB_46*Yo-P!Ts!R1jP)iYT~T1VP1%c=0SM
+zco5tWLGfTt9y|yh#03QrL0k|K%^`xsC1^~dnVI%buR}Xzx;xX$RFCyTkxV9Zz4^MT
+z-qKZL*|v?*=v8A77;pxh0awMU186^WLMNMAfjz)ZV0wjZ`31ZII)UrJPk^^aPbhGj
+zsTpViCIDkAY)e+`XaO1>aKj@`BP{@~0v(#zQ!lo3084>gKo02DX^m?Dj%x(1SnGlP
+zz+T;)!vbKD=00JgG_An30@E}Hmy@OyxPr9wgd-_YA20~i#@L4~p0ok5ssUUMxCGn>
+znqurH53B{Y3&7NaD*$(-B@w%A^#hltlq;K1KV$r+smWDMl5fBna0Z-_0cXG&a0Xly
+z8cGwmIv=P>J*~EZjL-k{CuGY&kk365xEa6(U{-?QexM4Or79m5FcX*>0C3oxxQzf6
+zm|}44z<FS$hBM<3unqOlBrfIU=469{%gXO(HH7AjxY^RQTI1TKDzMJ@OJ8SN;|AA8
+za%Gz|%aS$>?vMPTU}8H@y#;>zg(F7)>I-nei8q6S`vzQ0$iOAQ3XgcNAU`d+`*{LX
+zY)hy<0D}SG1#l908YBRAs~b3$5V(CF;2r>%U9f89!{^HAr&dN!App2%Kv&Sr!L3Y!
+zQ(~gWdoO`&uGhPPd1ZpD0j|h3BTcz<RHKZPJnAvwA;~z(RS)p0oD3<=9@LfvJB<3O
+zp*j*YCCa<jp0HachRV&y(>7HzGF|(DaS_<xAc240HHa*UYYWu`ZWVA7wTGk$m>=?b
+zdw?}XfxiWu0`7T@#<YQ(MzmYO=1MEpEdf`R&LK_>RI^vDc$vg#<gB8qyy}qTr(vr&
+zIdLxauD|um^~X3BkSM?<`2^~#$9s1r*$$J~JMrLQV2kTI2Y~m&<h5UX7Zlud;6_5=
+z=6Jl<<>&22p-m&)l<uel;AYhJ&Pprm%2mUvq3HGa(SS3~A*5H$NYfo;Mi)bzsrp{L
+ziSFt~ld}-c2>SrM18!>!?VH$V>jZ8PbvE-b@K{4=c~sHzk#1Af(K}!Vuo_qlO!BzH
+zIaDDrjE5UX=>s42ax<T!4u(9@WwezFM?Ruz@txwbZI4RDX<%}hecQkpsYH~T4LO;j
+z+I`1|R~+{f*NNZ~F;zP-CFD}k^S>qefpR*Z5trIH(geU20M{2mOf{HRa6xj_W(ft_
+zT#IyGa=X?LeOsvW?F(JOcN1!3%Q>GaNfa828(bsm7~;I5^=Wv^QwS|X?G<r9DEW?h
+z$o!f3>V-LAc^LbH8dh7>i51ZYaQ1%`S1C5jGGN67F0^9`3a%3QVVsW3(%HDQ$%<>L
+zCZ!L+LDXiLB=sq3aJ|40$t&Yded;9teMoW#LSkFvY**@)1h~Fb%xm)<nZ`L7a0Xlz
+a>+b*@{>S)>pwZC)0000<MNUMnLSTZcVoI0*
+
+literal 0
+HcmV?d00001
+
+diff --git a/res/drawable-xxxhdpi/ic_ethernet_nor.png b/res/drawable-xxxhdpi/ic_ethernet_nor.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..579cfae4d42bf0afe734290c1f8dba74c4339d33
+GIT binary patch
+literal 3975
+zcmV;24|wp2P)<h;3K|Lk000e1NJLTq003wJ003YJ1^@s6@lQ9*00009a7bBm000XU
+z000XU0RWnu7ytkYO=&|zP*7-ZbZ>KLZ*U+<Lqi~Na&Km7Y-Iodc-oy)cUY767Czti
+zWe-+D*zmEJY=HnGBdiF>5Lu!Sk^o_Z5E4Meg@_7P6crJiNL9pw)e1<Rh~l6qxMx9%
+zh+2zPTsZC@+^4mDdhhM+``7!t=bY#K&Uw!dfDsZVk>;Xm069{HJUZAPk55R%$-RIA
+z6-eL&AQ0xu!e<4=008g<d3b(wus{3(uWtYX0C3eVBofEr|AV?vCRYF;kpSQ#66Xs6
+zkWv81E>y@A0LT~suv4>S3ILP<0Bm`DLLvaF4FK%)Nj?Pt*r}7;7Xa9z9H|HZjR63e
+zC`Tj$K)V27Re@400>HumpsYY5E(E}?0f1SyGDiY{y#)Yvj#!WnKwtoXnL;eg03bL5
+z07D)V%>y7z1E4U{zu>7~aD})?0RX_umCct+(lZpemCzb@^6=o|A>zVpu|i=NDG+7}
+z<RYAxn<EoQ=L1a63;+Nc`O(4tI6si*=H%h#X6J10^u?n7Yw&L(J|Xen{=AF=1OO0D
+z&+pn_<>l4`aK{0#b-!z=TL9Wt0BGO&T{GJWpjryhdijfaIQ&2!o}p04JRKYg3k&Tf
+zVxhe-<BLB3GvROGi+=X}Kpy_vdhh^onn0PYz@vlxaba$Du2PQY%LGC(ZujRS{>O!X
+z{f;To;xw^bEES6JSc$k$B2CA6xl)ltA<32E66t?3@gJ7`36pmX0IY^jz)rRYwaaY4
+ze(nJRiw;=Qb^t(r^DT@T3y}a2XEZW-_W%Hszxj_qD**t_m!#tW0KDiJT&R>6OvVTR
+z07RgHDzHHZ48atvzz&?j9lXF70$~P3Knx_nJP<+#<bWIsp%|7y8C1YJ*aWq(0~(+a
+zn&A+%!7(@u=im}tf$MM=24EPT!Wg`U2?RmN2oqr;I*1Wsj@Tm32p5@-1R`NbG?IX%
+zAnAw{Q6k02a-;&OLTZs+NF(wsauhj@TtNDe+sGg?iu{VaM=_LvvQY!n0(C&Ss2>`N
+z#-MZ2bTkiLfR>_b(HgWKJ%F~Nr_oF3b#wrIijHG|(J>BYjM-sajE6;FiC7vY#};Gd
+zST$CUHDeuEH+B^pz@B062qXfFfD`NpUW5?BY=V%GM_5c)L#QR}BeW8_2v-S%gfYS=
+zB9o|3v?Y2H`NVi)I<b&gMyw|8As!)~C0-{E6JL`^Bo4`v<W349C6F>n3rTB8+ej^>
+zQ=~r95NVuDChL%G$=>7$vVg20myx%S50Foi`^m%Pw-h?Xh~i8Mq9jtJloCocWk2Nv
+zrJpiFnV_ms&8eQ$2&#xWpIS+6pmtC%Q-`S&G<BLK&6^fO%cL!%)zF%0XKD9nFX?o;
+z3EhJpMVHW*(rf4k>F4Q#^mhymh7E(qNMa}%YZ-ePrx>>xFPTiH1=E+A$W$=bG8>s^
+zm=Bn5Rah$aDtr}@$`X}2l~$F0mFKEdRdZE8)p@E5RI61Ft6o-prbbn>P~)iy)E2AN
+zsU20jsWz_8Qg>31P|s0cqrPALg8E|(vWA65poU1JRAaZs8I2(p#xiB`SVGovRs-uS
+zYnV-9TeA7=Om+qP8+I>yOjAR1s%ETak!GFdam@h^#<Ae=IoX^_&LPeX&U-BbEk7->
+z)@rS0t$wXH+Irf)+G6c;?H29p+V6F6oj{!|o%K3xI`?%6x;DB|x`n#ib<gTP(_`y-
+z=?V49^$zLX(MR=d^rQ6`>hIR?(H}Q3Gzd138Ei2)WAMz7W9Vy`X}HnwgyE<W%V@fh
+z#Au_@NuwvYChmu4<285}K4z?M9Ad0A-euftJYiyKGTWrYq{ZaEDb18?nr6Duw9|CV
+z%*ZU<tk|r{?2b9roNJz8zS+Fn{EdaBMV!S-i#ChLmfDtl%LSHAmiMffRz6mFR`pib
+ztVz~f>n!VS)>mv$8&{hQn>w4zwy3R}t;BYlZQm5)6pty=DfLrs+A-|>><a9f>;~;Q
+z_F?uV_HFjh9n2gO9o9Q^JA86<b<B2baJ=iJ;WWdk#HqvSS7#e%p>v({H5aB!kjoO6
+zc9$1ZZKsN-Zl8L~mE{`ly3)1N^`o1+o7}D0ZPeY&J;i;i`%NyJ8_8Y6J?}yE@b_5a
+zam?eLr<<q3^N{B+UUpttUi-ZsPqUmRp4KpJ$lJtQ;JwRxU^+fMW%|zP13tz+0-t)H
+zhrXu1BHul}BYxI?nSKZSp8Grc%l(h|zu|fE7V%C6U;)7a<pI5c8iBI|YXctynFOT=
+zH3f|Yy9O@|J{3X?2@P2va+7bs7xEkVV>8@mESk|3$_SkmS{wQ>%qC18))9_|&j{ZT
+zes8AvOzF(F2#DZEY>2oYX&IRp`F#{ADl)1r>QS^)ba8a|EY_^#S^H<bj`5GFjJZ48
+zYPNEAXRK;$Qfy=Fo4A0us<?r8hxkSDmlAXnBnj<_<iyy-J&EIU0_SX+Go0j_RF-sO
+zuI1dKxfkZ?&dZ*6JXtkakbF3Wm=c$=KjniULQpRlPvxg>O&t^Rgqwv=MZThqqEWH8
+zxJo>d=ABlR_Bh=;eM9<ahEGOy#xn^|QY(3p8Irjp^G#Mn*50ho*>Tw|Ih34~oTE|=
+zX_mAr*D$vzw@+p(E0Yc6dFE}(8<U61_v9n_bMxC3Y=unGqqI`4P!1MMFQ_YcTNqn-
+zxJbQ7TGTV&X8!8=BMX8Se7%scP`I$O*tmFE@!%rAMY|Rwi&GbOE-_tFx@351@X~$D
+zXv?ye{ZQgqQdRP5dED}jQiIZ^r9&%%S2UHWl*!9(uJl^DV-;bQWL58Km(^QVe<~N1
+zU#xJfsIK_1M!4qUS59BmeD!&4+S=Yqx61A7Nb98QZmjoNzpqNYYC+Y|hVTuo8}W_h
+z8((co-gKdQYW0rIw9U%R12tha?OV*YtlRRTHly}>oqt`+R{gE3x4zjX+Sb3_cYE^=
+zgB=w+-tUy`ytONMS8KgRef4hA?t<Nq8e$u|zvh13xJP$S#h#CQrF#eVMeplsbZ>0j
+zufM;t32jm~jUGrkaOInTZ`zyfns>EuS}G30LFK_G-==(f<51|K&cocp&EJ`SxAh3?
+zNO>#LI=^+SEu(FqJ)ynt=!~PC9bO$rzPJB=?=j<Jb;mW2SDv7qC_VA{<bspqr(~y|
+zolZYJ)S29Q_e}hmYh6)Yy=Ozuo<A3K?o78|_sR3#=Z{_Rym0g)_hQ>6w@a-(u02P7
+zaQ)#(uUl{HW%tYNS3ItC^iAtK(eKlL`f9+{bJzISE?u8_z3;~C8@FyI-5j_jy7l;W
+z_U#vU3hqqYU3!mrul&B+{ptt$59)uk{;_4iZQ%G|z+lhASr6|H35TBkl>gI*;nGLU
+zN7W-nBaM%pA0HbH8olyl&XeJ%vZoWz%6?Y=dFykl=imL}`%BMQ{Mhgd`HRoLu6e2R
+za__6DuR6yg#~-}Tc|Gx_{H@O0eebyMy5GmWADJlpK>kqk(fVV@r_fLLKIeS?{4e)}
+z^ZO;zpECde03c&XQcVB=dL;k=fP(-4`Tqa_faw4Lbua(`>R<o>I+y?e7jKeZ#YO-C
+z1hh#+K~#9!?43=B97Pnzf0NxwHh$zovxpxth>?&}5Mz)%h#z<mL<A2CMiCStL{Uf-
+z!Ar;?1dPck5YUStdhntI6jVG2>ct>Yv$#f7Vh9@zgjF)LGrP0xq2A)`W@ghp+cjNX
+z^Z!FJOK&q>-M^}?SMR;5sU%5)6s}h25eSeZKmsHQkkm=T^M7nPw6DyK>{j3b;6Y#`
+zFkPbhe+PUDoB(R`2PgLKTL`Gc8Uoe=>+Ewau&N|=uUNg;0avvHx~vD4R3pGH;7tQn
+zM%``q@D=b1@O>;}P!-q>94;}OcHIkn2;2Z%7XzT}z)O+Y1h)gv1JA_(XbjjCq2ad6
+zN~y=7Az)jimh~vmjG+g$A_bIK(L`0A1SvmHLZqq#e+1-N*wk)93lRJSJPJ$(QlGcY
+zgs$in_kROiA5eWVyPz}%$w-g{NPr{(k_1SABmoj2Nq{5)5+F%{q!I&a5pT$Qfre8;
+z3~7~DV)Y(Md2TbXhLszjyMV3s8IopzmB5aajcZjPZ;Ls4NU-b%=ow%?<<C328F(Ey
+zi_3j3x?ye41JF+3-AG>HqrlU#j6pZy@|};$b_x^FBe>N9YxG#c1oV&%zEZKOwp-1^
+zi{94)RJ>~KQ-gLuO+A|+^a;?&GEtTKrwhPAGs$}f)C7JB1a1wtXm~UNIOl+uS+oSQ
+zmxp{Fcq$M;mw*?oETzOIs~5~t4M}z2N8ml+i?p7ED?OAS0=mJ|DbAS%4gsG5tL@kn
+z@VAHhTnlU<y<4XSOl0vSTuGrV*iGZYX#ppJpWBYzhVz=_ty8!a+qut!VphdkcDtSg
+z4tTiMm-gMc^v*#J*iGRlj50}%u_{GW1D5~^P!LLhe>+&CKGXm%%1Fp=dERLQ_iCGa
+zZ1r@l8-e=`(uxlC_|^WG2++d&+ygv|3xQADgRFSC));UM=dS4lXfJSFJ?L^X`xYy{
+zwT7i*YMI<pG7|c)rU1!`lLSZ-pn{ZXGmAm7;u2sS_!EB#jCC`y7dvH7;QW5WR?hea
+zG#l8%|0l&cGr$qt_Q$>wW16^pg2fvRzG01H$lh4z$>5~z1<)vNciIr*LJi>Ils)Ko
+zTv*wsY8{SESkLWwhMiR#fVVu&!h7k>)s*M<BR9KKqrGN1U)bvy6pC?CC2|dl6;}zQ
+z$1ke~jSz2U>1=?;P39hSnsga5Wz-~oGI;t5=zS|O>RVj4O{oEW1AJ|tF{uW8U=ztw
+z1FGAk?*-gutg+}d;PaTQxKqFrHuFAHVlW>8kKv-5rCqtvZ5}jkE{b<>KbMkLP2evN
+z^}L#FyZ6?C-#pbN2te~UIc_D3m*JR)dLAd9h0T5OBy`gqz~dh3SszqDd3zFkO$IM9
+zpi;n2fFuDDpwyc3RL|)_1(el_+sM*stG<F_JAwPU{I3PPid#5Uv|2?28ljjU_q*Oo
+zH|;m`zQ}ON46wOqKy!h<3C4hX3LaAvAJ>m1?W#iYNi1F>wzA@6W)HlU)w5!F#U;4K
+zSsw>lzq9=W)WGdB(g@_{SK=J0CvoA0fu9G>;nr7%5&)~(BsSVTv@1!HAjwFO1W14+
+h0g?nrfTTS2-vE5J$D{Mftlt0t002ovPDHLkV1h+8d)5E|
+
+literal 0
+HcmV?d00001
+
+diff --git a/res/drawable/ic_ethernet.xml b/res/drawable/ic_ethernet.xml
+new file mode 100644
+index 0000000..98b67dd
+--- /dev/null
++++ b/res/drawable/ic_ethernet.xml
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="utf-8"?>
++<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
++    android:src="@drawable/ic_ethernet_nor"
++    android:tint="?android:attr/colorControlNormal" />
+\ No newline at end of file
+diff --git a/res/layout/advanced_setting.xml b/res/layout/advanced_setting.xml
+new file mode 100644
+index 0000000..8b60e2e
+--- /dev/null
++++ b/res/layout/advanced_setting.xml
+@@ -0,0 +1,97 @@
++<?xml version="1.0" encoding="utf-8"?>
++<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content">
++    <LinearLayout
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:orientation="vertical"
++            android:paddingBottom="8dip">
++        <TextView android:id="@+id/eth_proxy_text"
++                  android:layout_width="match_parent"
++                  android:layout_height="wrap_content"
++                  android:layout_marginTop="8dip"
++                  android:layout_marginStart="16dip"
++                  android:layout_marginEnd="16dip"
++                  android:orientation="vertical"
++                  android:gravity="start"
++                  android:textAppearance="?android:attr/textAppearanceMedium"
++                  android:text="@string/proxy_setting" />
++        <CheckBox
++                  android:id="@+id/proxy_enable_checkbox"
++                  android:layout_width="match_parent"
++                  android:layout_height="wrap_content"
++                  android:layout_marginTop="8dip"
++                  android:layout_marginEnd="16dip"
++                  android:text="@string/proxy_enable_checkbox" />
++        <!-- IP address -->
++        <LinearLayout android:id="@+id/enterprise_wrapper"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:padding="0dip"
++                      android:orientation="vertical">
++            <LinearLayout
++                android:id="@+id/ip_dns_setting"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:orientation="vertical" >
++            </LinearLayout>
++            <LinearLayout
++                android:id="@+id/address_port_setting"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:orientation="vertical" >
++            <TextView android:id="@+id/eth_proxy_address"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:layout_marginTop="8dip"
++                      android:layout_marginStart="16dip"
++                      android:layout_marginEnd="16dip"
++                      android:orientation="vertical"
++                      android:gravity="start"
++                      android:text="@string/proxy_address" />
++            <EditText android:id="@+id/proxy_address_edit"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:textSize="18sp"
++                      android:paddingLeft="10dip"
++                      android:textAlignment="viewStart"
++                      android:singleLine="true" />
++            <TextView android:id="@+id/eth_proxy_port"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:layout_marginTop="8dip"
++                      android:layout_marginStart="16dip"
++                      android:layout_marginEnd="16dip"
++                      android:orientation="vertical"
++                      android:gravity="start"
++                      android:text="@string/proxy_port" />
++            <EditText android:id="@+id/proxy_port_edit"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:textSize="18sp"
++                      android:paddingLeft="10dip"
++                      android:textAlignment="viewStart"
++                      android:singleLine="true"
++                      android:inputType="number" />
++           <TextView android:id="@+id/eth_proxy_exclusionlist"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:layout_marginTop="8dip"
++                      android:layout_marginStart="16dip"
++                      android:layout_marginEnd="16dip"
++                      android:orientation="vertical"
++                      android:gravity="start"
++                      android:text="@string/proxy_exclusionlist" />
++            <EditText android:id="@+id/proxy_exclusionlist"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:textSize="18sp"
++                      android:paddingLeft="10dip"
++                      android:textAlignment="viewStart"
++                      android:hint="@string/bypass_hint"
++                      android:singleLine="true"/>
++            </LinearLayout>
++        </LinearLayout>
++    </LinearLayout>
++</ScrollView>
+diff --git a/res/layout/eth_configure.xml b/res/layout/eth_configure.xml
+new file mode 100644
+index 0000000..8a3d295
+--- /dev/null
++++ b/res/layout/eth_configure.xml
+@@ -0,0 +1,144 @@
++<?xml version="1.0" encoding="utf-8"?>
++<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content">
++    <LinearLayout
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:orientation="vertical"
++            android:paddingBottom="8dip">
++        <LinearLayout
++                android:id="@+id/table"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:orientation="vertical">
++        </LinearLayout>
++        <!-- Device list -->
++        <TextView android:id="@+id/eth_dev_list_text"
++                  android:layout_width="match_parent"
++                  android:layout_height="wrap_content"
++                  android:layout_marginTop="8dip"
++                  android:layout_marginStart="16dip"
++                  android:layout_marginEnd="16dip"
++                  android:orientation="vertical"
++                  android:gravity="start"
++                  android:text="@string/eth_dev_list"
++                  android:textAppearance="?android:attr/textAppearanceMedium" />
++        <!-- The entries will be set programmatically -->
++        <Spinner android:id="@+id/eth_dev_spinner"
++                 android:layout_width="match_parent"
++                 android:layout_height="wrap_content" />
++        <!-- Connection type -->
++        <TextView android:id="@+id/eth_con_type"
++                  android:layout_width="match_parent"
++                  android:layout_height="wrap_content"
++                  android:layout_marginTop="8dip"
++                  android:layout_marginStart="16dip"
++                  android:layout_marginEnd="16dip"
++                  android:orientation="vertical"
++                  android:gravity="start"
++                  android:textAppearance="?android:attr/textAppearanceMedium"
++                  android:text="@string/eth_con_type" />
++        <RadioGroup android:id="@+id/con_type"
++                    android:layout_width="match_parent"
++                    android:layout_height="wrap_content">
++            <RadioButton android:id="@+id/dhcp_radio"
++                         android:layout_width="wrap_content"
++                         android:layout_height="wrap_content"
++                         android:textSize="14sp"
++                         android:textAlignment="viewStart"
++                         android:text="@string/eth_con_type_dhcp">
++            </RadioButton>
++            <RadioButton android:id="@+id/manual_radio"
++                         android:layout_width="wrap_content"
++                         android:layout_height="wrap_content"
++                         android:textSize="14sp"
++                         android:textAlignment="viewStart"
++                         android:text="@string/eth_con_type_manual">
++            </RadioButton>
++        </RadioGroup>
++        <!-- IP address -->
++        <LinearLayout android:id="@+id/enterprise_wrapper"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:padding="0dip"
++                      android:orientation="vertical">
++            <LinearLayout
++                android:id="@+id/ip_dns_setting"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:orientation="vertical">
++            <TextView android:id="@+id/ipaddr_text"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:layout_marginTop="8dip"
++                      android:layout_marginStart="16dip"
++                      android:layout_marginEnd="16dip"
++                      android:orientation="vertical"
++                      android:gravity="start"
++                      android:text="@string/eth_ipaddr" />
++            <EditText android:id="@+id/ipaddr_edit"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:textSize="18sp"
++                      android:paddingLeft="10dip"
++                      android:textAlignment="viewStart"
++                      android:singleLine="true"
++                      android:inputType="phone"
++                      android:text="@string/eth_ipaddr_default"/>
++            <TextView android:id="@+id/dns_text"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:layout_marginTop="8dip"
++                      android:layout_marginStart="16dip"
++                      android:layout_marginEnd="16dip"
++                      android:orientation="vertical"
++                      android:gravity="start"
++                      android:text="@string/eth_dns" />
++            <EditText android:id="@+id/eth_dns_edit"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:textSize="18sp"
++                      android:paddingLeft="10dip"
++                      android:textAlignment="viewStart"
++                      android:singleLine="true"
++                      android:inputType="none" />
++            <TextView android:id="@+id/netmask_text"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:layout_marginTop="8dip"
++                      android:layout_marginStart="16dip"
++                      android:layout_marginEnd="16dip"
++                      android:orientation="vertical"
++                      android:gravity="start"
++                      android:text="@string/eth_mask" />
++            <EditText android:id="@+id/eth_netmask_edit"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:textSize="18sp"
++                      android:paddingLeft="10dip"
++                      android:textAlignment="viewStart"
++                      android:singleLine="true"
++                      android:text="@string/eth_mask_pre"
++                      android:inputType="phone" />
++            <TextView android:id="@+id/gateway_text"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:layout_marginTop="8dip"
++                      android:layout_marginStart="16dip"
++                      android:layout_marginEnd="16dip"
++                      android:orientation="vertical"
++                      android:gravity="start"
++                      android:text="@string/eth_gw" />
++            <EditText android:id="@+id/eth_gateway_edit"
++                      android:layout_width="match_parent"
++                      android:layout_height="wrap_content"
++                      android:textSize="18sp"
++                      android:paddingLeft="10dip"
++                      android:textAlignment="viewStart"
++                      android:singleLine="true"
++                      android:inputType="phone" />
++            </LinearLayout>
++        </LinearLayout>
++    </LinearLayout>
++</ScrollView>
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index 8790dcb..cff7886 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -10097,4 +10097,53 @@
+ 
+     <!-- Label for the disagree button on wfc disclaimer fragment. [CHAR LIMIT=30] -->
+     <string name="wfc_disclaimer_disagree_text">NO THANKS</string>
++
++   <!-- Ethernet Setting : start -->
++    <string name="configue_ethernet">Configue Ethernet</string>
++    <string name="configue_ethernet_adv">Configue Ethernet advance setting</string>
++    <string name="ethernet_settings">Ethernet</string>
++    <string name="ethernet_settings_title">Ethernet</string>
++    <string name="ethernet_dhcp_mode">DHCP</string>
++    <string name="ethernet_static_ip_mode">Static IP</string>
++    <string name="ethernet_static_ip_title">Static Ip</string>
++    <string name="ethernet_proxy_mode">Proxy</string>
++    <string name="ethernet_proxy_settings_title">Ethernet Advance Settings</string>
++    <string name="ethernet_proxy_name_title">Proxy IP/Name</string>
++    <string name="ethernet_proxy_port_title">Proxy Port</string>
++    <string name="ethernet_proxy_by_pass_title">Proxy By Pass</string>
++    <!-- Ethernet Setting : end -->
++
++    <!-- for ethernet : start -->
++    <string name="eth_config_title" translatable="false">Configure Ethernet device</string>
++    <string name="eth_advanced_title" translatable="false">Advanced Ethernet setting</string>
++    <string name="eth_setting" translatable="false">Ethernet setting</string>
++    <string name="eth_dev_list" translatable="false">Ethernet Devices:</string>
++    <string name="eth_con_type" translatable="false">Connection Type</string>
++    <string name="eth_con_type_dhcp" translatable="false">DHCP</string>
++    <string name="eth_con_type_manual" translatable="false">Static IP</string>
++    <string name="eth_dns" translatable="false">DNS address</string>
++    <string name="eth_gw" translatable="false">Gateway address</string>
++    <string name="eth_ipaddr" translatable="false">IP address</string>
++    <string name="eth_ipaddr_default" translatable="false">169.254.0.1</string>
++    <string name="eth_quick_toggle_title" translatable="false">Ethernet</string>
++    <string name="eth_quick_toggle_summary" translatable="false">Turn on Ethernet</string>
++    <string name="eth_check_config" translatable="false">Check Ethernet</string>
++    <string name="eth_do_config" translatable="false">Configure Ethernet</string>
++    <string name="eth_conf_summary" translatable="false">Configure Ethernet devices</string>
++    <string name="eth_mask" translatable="false">Netmask</string>
++    <string name="eth_mask_pre" translatable="false">255.255.0.0</string>
++    <string name="eth_toggle_summary_off" translatable="false">Turn off Ethernet</string>
++    <string name="eth_toggle_summary_on" translatable="false">Turn on Ethernet</string>
++    <string name="proxy_setting">Proxy setting</string>
++    <string name="eth_proxy">Proxy server</string>
++    <string name="proxy_address">Proxy hostname</string>
++    <string name="proxy_port">Proxy port</string>
++    <string name="proxy_exclusionlist">Bypass proxy for</string>
++    <string name="eth_proxy_address">Proxy address</string>
++    <string name="show_need_setting">You should set the static IP, Gateway and Mask in this mode</string>
++    <string name="advanced_need_setting">You should not set the Proxy address and Proxy port null</string>
++    <string name="bypass_hint">You should put valid addresses split by \",\"</string>
++    <string name="show_connect_ethernet">Connect the Ethernet before setting the proxy.</string>
++    <string name="proxy_enable_checkbox">Enable Http Proxy</string>
++    <!-- for ethernet : end -->
+ </resources>
+diff --git a/res/xml/ethernet_settings.xml b/res/xml/ethernet_settings.xml
+new file mode 100644
+index 0000000..88c6374
+--- /dev/null
++++ b/res/xml/ethernet_settings.xml
+@@ -0,0 +1,16 @@
++<?xml version="1.0" encoding="utf-8"?>
++<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
++                  xmlns:settings="http://schemas.android.com/apk/res/com.android.settings"
++        android:title="@string/ethernet"
++        settings:keywords="@string/ethernet">
++    <Preference
++        android:key="configue_ethernet"
++        android:title="@string/configue_ethernet"
++        android:persistent="false"
++        />
++    <Preference
++        android:key="ethernet_advanced_setting"
++        android:title="@string/eth_advanced_title"
++        android:persistent="false"
++        />
++</PreferenceScreen>
+diff --git a/res/xml/network_and_internet.xml b/res/xml/network_and_internet.xml
+index 6eda0b0..27f577b 100644
+--- a/res/xml/network_and_internet.xml
++++ b/res/xml/network_and_internet.xml
+@@ -21,6 +21,17 @@
+     android:title="@string/network_dashboard_title"
+     settings:initialExpandedChildrenCount="5">
+ 
++    <com.android.settingslib.RestrictedPreference
++    	android:fragment="com.android.settings.ethernet.EthernetSettings"
++        android:title="@string/ethernet"
++        android:icon="@drawable/ic_ethernet"
++        android:order="-30"
++        settings:keywords="@string/ethernet">
++        <intent
++            android:action="android.settings.ETHERNET_SETTINGS"
++            android:targetClass="Settings$EthernetSettingsActivity" />
++    </com.android.settingslib.RestrictedPreference>
++
+     <com.android.settings.widget.MasterSwitchPreference
+         android:fragment="com.android.settings.wifi.WifiSettings"
+         android:key="toggle_wifi"
+diff --git a/src/com/android/settings/Settings.java b/src/com/android/settings/Settings.java
+index 903e49e..ee5f006 100644
+--- a/src/com/android/settings/Settings.java
++++ b/src/com/android/settings/Settings.java
+@@ -167,4 +167,5 @@ public class Settings extends SettingsActivity {
+     public static class AccountDashboardActivity extends SettingsActivity {}
+     public static class SystemDashboardActivity extends SettingsActivity {}
+ 
++    public static class EthernetSettingsActivity extends SettingsActivity { /* empty */ }
+ }
+diff --git a/src/com/android/settings/core/gateway/SettingsGateway.java b/src/com/android/settings/core/gateway/SettingsGateway.java
+index 8f5d992..bab6a56 100644
+--- a/src/com/android/settings/core/gateway/SettingsGateway.java
++++ b/src/com/android/settings/core/gateway/SettingsGateway.java
+@@ -137,6 +137,7 @@ import com.android.settings.wifi.WifiSettings;
+ import com.android.settings.wifi.calling.WifiCallingSettings;
+ import com.android.settings.wifi.p2p.WifiP2pSettings;
+ import com.android.settings.wifi.tether.WifiTetherSettings;
++import com.android.settings.ethernet.EthernetSettings;
+ 
+ public class SettingsGateway {
+ 
+@@ -263,6 +264,7 @@ public class SettingsGateway {
+             DirectoryAccessDetails.class.getName(),
+             ToggleBackupSettingFragment.class.getName(),
+             PreviouslyConnectedDeviceDashboardFragment.class.getName(),
++            EthernetSettings.class.getName()
+     };
+ 
+     public static final String[] SETTINGS_FOR_RESTRICTED = {
+diff --git a/src/com/android/settings/ethernet/EthernetAdvDialog.java b/src/com/android/settings/ethernet/EthernetAdvDialog.java
+new file mode 100644
+index 0000000..27b0db2
+--- /dev/null
++++ b/src/com/android/settings/ethernet/EthernetAdvDialog.java
+@@ -0,0 +1,159 @@
++package com.android.settings.ethernet;
++
++import android.net.ConnectivityManager;
++import android.net.Proxy;
++import android.net.LinkProperties;
++import android.net.ProxyInfo;
++import android.app.AlertDialog;
++import android.content.Context;
++import android.content.DialogInterface;
++import android.util.Log;
++import android.view.View;
++import android.widget.CheckBox;
++import android.widget.CompoundButton;
++import android.widget.EditText;
++import android.widget.LinearLayout;
++import android.widget.RadioButton;
++import android.widget.TextView;
++import android.widget.Toast;
++import android.widget.CompoundButton.OnCheckedChangeListener;
++import com.android.settings.R;
++
++public class EthernetAdvDialog extends AlertDialog implements DialogInterface.OnClickListener,View.OnClickListener{
++
++    private final String TAG = "EthernetAdvDialog";
++    private static String Mode_dhcp = "dhcp";
++    private Context mContext;
++    private EthernetEnabler mEthEnabler;
++    private View mView;
++    private EditText mProxyIp;
++    private EditText mProxyPort;
++    private EditText mProxyExclusionList;
++    private LinearLayout mConfigWindow;
++    private LinkProperties mLinkProperties;
++    private CheckBox mProxyEnableCheckBox;
++    private ProxyInfo mHttpProxy;
++    private static ConnectivityManager sConnectivityManager = null;
++
++    public EthernetAdvDialog(Context context,EthernetEnabler Enabler) {
++        super(context);
++        mContext = context;
++        mEthEnabler = Enabler;
++        LinkProperties mLinkProperties = new LinkProperties();
++        buildDialogContent(context);
++    }
++
++    public int buildDialogContent(Context context) {
++        this.setTitle(R.string.eth_advanced_title);
++        this.setView(mView = getLayoutInflater().inflate(R.layout.advanced_setting, null));
++
++        mProxyIp = (EditText)mView.findViewById(R.id.proxy_address_edit);
++        mProxyPort = (EditText)mView.findViewById(R.id.proxy_port_edit);
++        mProxyExclusionList = (EditText)mView.findViewById(R.id.proxy_exclusionlist);
++        mProxyEnableCheckBox = (CheckBox)mView.findViewById(R.id.proxy_enable_checkbox);
++        mConfigWindow = (LinearLayout)mView.findViewById(R.id.enterprise_wrapper);
++        mProxyEnableCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
++            @Override
++            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
++                if (isChecked) {
++                    mConfigWindow.setVisibility(View.VISIBLE);
++                } else {
++                    mConfigWindow.setVisibility(View.GONE);
++                }
++                mProxyIp.setEnabled(isChecked);
++                mProxyPort.setEnabled(isChecked);
++                mProxyExclusionList.setEnabled(isChecked);
++            }
++        });
++
++        this.setInverseBackgroundForced(true);
++        this.setButton(BUTTON_POSITIVE, context.getText(R.string.menu_save), this);
++        this.setButton(BUTTON_NEGATIVE, context.getText(R.string.menu_cancel), this);
++
++        mProxyIp.setText(mEthEnabler.getManager().getSharedPreProxyAddress(),TextView.BufferType.EDITABLE);
++        mProxyPort.setText(mEthEnabler.getManager().getSharedPreProxyPort(),TextView.BufferType.EDITABLE);
++        mProxyExclusionList.setText(mEthEnabler.getManager().getSharedPreProxyExclusionList(),TextView.BufferType.EDITABLE);
++
++        if (mEthEnabler.getManager().isProxyOn()) {
++            mProxyEnableCheckBox.setChecked(true);
++            mConfigWindow.setVisibility(View.VISIBLE);
++        } else {
++            mProxyEnableCheckBox.setChecked(false);
++            mConfigWindow.setVisibility(View.GONE);
++        }
++        this.setInverseBackgroundForced(true);
++        this.setButton(BUTTON_POSITIVE, context.getText(R.string.menu_save), this);
++        this.setButton(BUTTON_NEGATIVE, context.getText(R.string.menu_cancel), this);
++        return 0;
++    }
++
++    public void handle_saveconf() {
++       // if(mEthEnabler.getManager().isEthernetConnect()){
++            EthernetDevInfo info = new EthernetDevInfo();
++            String [] DevName = mEthEnabler.getManager().getDeviceNameList();
++
++            Log.e(TAG,"handle_saveconf :");
++
++            info.setIfName(DevName[0]);	
++            Log.e(TAG,"handle_saveconf : info.setIfName("+DevName[0]+")");
++
++            info.setConnectMode(mEthEnabler.getManager().getSharedPreMode());
++            Log.e(TAG,"handle_saveconf :  info.setConnectMode("+mEthEnabler.getManager().getSharedPreMode()+");");
++
++            info.setIpAddress(mEthEnabler.getManager().getSharedPreIpAddress());
++            Log.e(TAG,"handle_saveconf :  info.setConnectMode("+mEthEnabler.getManager().getSharedPreIpAddress()+");");
++
++            info.setDnsAddr(mEthEnabler.getManager().getSharedPreDnsAddress());
++            Log.e(TAG,"handle_saveconf :  info.setConnectMode("+mEthEnabler.getManager().getSharedPreDnsAddress()+");");
++
++            info.setNetMask(mEthEnabler.getManager().getSharedPreNetMask());
++            Log.e(TAG,"handle_saveconf :  info.setConnectMode("+mEthEnabler.getManager().getSharedPreNetMask()+");");
++
++            info.setGateway(mEthEnabler.getManager().getSharedPreGateway());
++            Log.e(TAG,"handle_saveconf :  info.setConnectMode("+mEthEnabler.getManager().getSharedPreGateway()+");");
++
++            if (mProxyEnableCheckBox.isChecked()) {
++                Log.e(TAG,"handle_saveconf : info.setProxyOn(true);");
++                info.setProxyOn(true);
++            } else {
++                Log.e(TAG,"handle_saveconf : info.setProxyOn(false);");
++                info.setProxyOn(false);
++            }
++
++            info.setProxyAddr(mProxyIp.getText().toString());
++            Log.e(TAG,"handle_saveconf : info.setProxyAddr("+mProxyIp.getText().toString()+");");
++
++            info.setProxyPort(mProxyPort.getText().toString());
++            Log.e(TAG,"handle_saveconf : info.setProxyAddr("+mProxyPort.getText().toString()+");");
++
++            info.setProxyExclusionList(mProxyExclusionList.getText().toString());
++            Log.e(TAG,"handle_saveconf : info.setProxyAddr("+mProxyExclusionList.getText().toString()+");");
++
++            mEthEnabler.getManager().updateDevInfo(info);
++            mEthEnabler.setEthEnabled();
++         //   mEthEnabler.getManager().setProxy();
++        //} else {
++        //   Toast.makeText(this.getContext(),R.string.show_connect_ethernet,Toast.LENGTH_SHORT).show();
++        //}
++    }
++
++    public void onClick(DialogInterface dialog, int which) {
++        switch (which) {
++            case BUTTON_POSITIVE:
++                Log.e(TAG,"onClick : BUTTON_POSITIVE : handle_saveconf()");
++                handle_saveconf();
++                break;
++            case BUTTON_NEGATIVE:
++                Log.e(TAG,"onClick : BUTTON_NEGATIVE : cancel()");
++                dialog.cancel();
++                break;
++            default:
++                Log.e(TAG,"Unknow button");
++        }
++    }
++
++    @Override
++    public void onClick(View arg0) {
++        // TODO Auto-generated method stub
++    }
++}
+\ No newline at end of file
+diff --git a/src/com/android/settings/ethernet/EthernetConfigDialog.java b/src/com/android/settings/ethernet/EthernetConfigDialog.java
+new file mode 100644
+index 0000000..09df7a3
+--- /dev/null
++++ b/src/com/android/settings/ethernet/EthernetConfigDialog.java
+@@ -0,0 +1,190 @@
++package com.android.settings.ethernet;
++
++import android.view.View;
++import android.app.AlertDialog;
++import android.content.Context;
++import android.content.DialogInterface;
++import android.content.SharedPreferences;
++import android.content.SharedPreferences.Editor;
++import android.util.Log;
++import android.view.View;
++import android.widget.AdapterView;
++import android.widget.ArrayAdapter;
++import android.widget.EditText;
++import android.widget.RadioButton;
++import android.widget.Spinner;
++import android.widget.TextView;
++import android.os.Handler;
++import com.android.settings.ethernet.EthernetDevInfo;
++import android.widget.LinearLayout;
++import android.widget.CompoundButton;
++import android.widget.CheckBox;
++import android.widget.Toast;
++import android.widget.CompoundButton.OnCheckedChangeListener;
++import com.android.settings.R;
++
++public class EthernetConfigDialog extends AlertDialog implements
++        DialogInterface.OnClickListener, AdapterView.OnItemSelectedListener, View.OnClickListener {
++    private final String TAG = "EtherenetSettings";
++    private static final boolean localLOGV = true;
++    private Context mContext;
++    private EthernetEnabler mEthEnabler;
++    private View mView;
++    private Spinner mDevList;
++    private TextView mDevs;
++    private RadioButton mConTypeDhcp;
++    private RadioButton mConTypeManual;
++    private EditText mIpaddr;
++    private EditText mDns;
++    private EditText mMask;
++    private EditText mGateway;
++    private LinearLayout ip_dns_setting;
++    private static String Mode_dhcp = "dhcp";
++    private Handler configHandler = new Handler();
++
++    public EthernetConfigDialog(Context context, EthernetEnabler Enabler) {
++        super(context);
++        mContext = context;
++        mEthEnabler = Enabler;
++        buildDialogContent(context);
++    }
++    public int buildDialogContent(Context context) {
++        this.setTitle(R.string.eth_config_title);
++        this.setView(mView = getLayoutInflater().inflate(R.layout.eth_configure, null));
++        mDevs = (TextView) mView.findViewById(R.id.eth_dev_list_text);
++        mDevList = (Spinner) mView.findViewById(R.id.eth_dev_spinner);
++        mConTypeDhcp = (RadioButton) mView.findViewById(R.id.dhcp_radio);
++        mConTypeManual = (RadioButton) mView.findViewById(R.id.manual_radio);
++        mIpaddr = (EditText)mView.findViewById(R.id.ipaddr_edit);
++        mDns = (EditText)mView.findViewById(R.id.eth_dns_edit);
++        mMask = (EditText)mView.findViewById(R.id.eth_netmask_edit);
++        mGateway = (EditText)mView.findViewById(R.id.eth_gateway_edit);
++
++        ip_dns_setting = (LinearLayout)mView.findViewById(R.id.ip_dns_setting);
++
++        if (mEthEnabler.getManager().isConfigured()) {
++            EthernetDevInfo info = mEthEnabler.getManager().getSavedConfig();
++            if (mEthEnabler.getManager().getSharedPreMode().equals(Mode_dhcp)) {
++                mConTypeDhcp.setChecked(true);
++                mConTypeManual.setChecked(false);
++                ip_dns_setting.setVisibility(View.GONE);
++            } else {
++                mConTypeDhcp.setChecked(false);
++                mConTypeManual.setChecked(true);
++                ip_dns_setting.setVisibility(View.VISIBLE);
++                mIpaddr.setText(mEthEnabler.getManager().getSharedPreIpAddress(),TextView.BufferType.EDITABLE);
++                mDns.setText(mEthEnabler.getManager().getSharedPreDnsAddress(),TextView.BufferType.EDITABLE);
++                mMask.setText(mEthEnabler.getManager().getSharedPreNetMask(),TextView.BufferType.EDITABLE);
++                mGateway.setText(mEthEnabler.getManager().getSharedPreGateway(),TextView.BufferType.EDITABLE);
++            }
++        } else {
++            mConTypeDhcp.setChecked(true);
++            mConTypeManual.setChecked(false);
++            ip_dns_setting.setVisibility(View.GONE);
++        }
++        mConTypeManual.setOnClickListener(new RadioButton.OnClickListener() {
++            public void onClick(View v) {
++                ip_dns_setting.setVisibility(View.VISIBLE);
++            }
++        });
++        mConTypeDhcp.setOnClickListener(new RadioButton.OnClickListener() {
++            public void onClick(View v) {
++                ip_dns_setting.setVisibility(View.GONE);
++            }
++        });
++
++        this.setInverseBackgroundForced(true);
++        this.setButton(BUTTON_POSITIVE, context.getText(R.string.menu_save), this);
++        this.setButton(BUTTON_NEGATIVE, context.getText(R.string.menu_cancel), this);
++        String[] Devs = mEthEnabler.getManager().getDeviceNameList();
++        if (Devs != null) {
++            if (localLOGV)
++                Log.d(TAG, "found device: " + Devs[0]);
++            updateDevNameList(Devs);
++        }
++        return 0;
++    }
++
++    public void handle_saveconf() {
++        EthernetDevInfo info = new EthernetDevInfo();
++        info.setIfName(mDevList.getSelectedItem().toString());
++        if (localLOGV)
++            Log.d(TAG, "Config device for " + mDevList.getSelectedItem().toString());
++        if (mConTypeManual.isChecked()) {
++            if ((mIpaddr.getText().toString().equals("")) || (mMask.getText().toString().equals("")) /*||
++                        mGateway.getText().toString().equals("")*/) {
++                Toast.makeText(this.getContext(), R.string.show_need_setting,Toast.LENGTH_SHORT).show();
++                return;
++            } else {
++                info.setConnectMode(EthernetDevInfo.ETHERNET_CONN_MODE_MANUAL);
++                info.setIpAddress(mIpaddr.getText().toString());
++                info.setDnsAddr(mDns.getText().toString());
++                info.setNetMask(mMask.getText().toString());
++                info.setGateway(mGateway.getText().toString());
++            }
++        } else {
++            info.setConnectMode(EthernetDevInfo.ETHERNET_CONN_MODE_DHCP);
++        }
++
++        info.setProxyOn(mEthEnabler.getManager().isProxyOn());
++        info.setProxyAddr(mEthEnabler.getManager().getSharedPreProxyAddress());
++        info.setProxyPort(mEthEnabler.getManager().getSharedPreProxyPort());
++        info.setProxyExclusionList(mEthEnabler.getManager().getSharedPreProxyExclusionList());
++
++        if(mEthEnabler.getManager().isProxyOn())
++            Log.d(TAG, "handle_saveconf : isProxyOn = true");
++        else
++            Log.d(TAG, "handle_saveconf : isProxyOn = false");
++
++        Log.d(TAG, "handle_saveconf : getSharedPreProxyAddress = " + mEthEnabler.getManager().getSharedPreProxyAddress());
++        Log.d(TAG, "handle_saveconf : getSharedPreProxyPort = " + mEthEnabler.getManager().getSharedPreProxyPort());
++        Log.d(TAG, "handle_saveconf : getSharedPreProxyExclusionList = " + mEthEnabler.getManager().getSharedPreProxyExclusionList());
++
++        configHandler.post(new ConfigHandler(info));
++    }
++
++    class ConfigHandler implements Runnable {
++        EthernetDevInfo info;
++
++        public ConfigHandler(EthernetDevInfo info) {
++            this.info = info;
++        }
++
++        public void run() {
++            mEthEnabler.getManager().updateDevInfo(info);
++            mEthEnabler.setEthEnabled();
++        }
++    }
++
++    public void onClick(DialogInterface dialog, int which) {
++        switch (which) {
++            case BUTTON_POSITIVE:
++                handle_saveconf();
++                break;
++            case BUTTON_NEGATIVE:
++                dialog.cancel();
++                break;
++            default:
++                Log.e(TAG,"Unknow button");
++        }
++    }
++
++    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
++    }
++
++    public void onNothingSelected(AdapterView<?> parent) {
++    }
++
++    public void onClick(View v) {
++    }
++
++    public void updateDevNameList(String[] DevList) {
++        if (DevList != null) {
++            ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(
++                    getContext(), android.R.layout.simple_spinner_item, DevList);
++            adapter.setDropDownViewResource(
++                    android.R.layout.simple_spinner_dropdown_item);
++            mDevList.setAdapter(adapter);
++        }
++    }
++}
+\ No newline at end of file
+diff --git a/src/com/android/settings/ethernet/EthernetDevInfo.java b/src/com/android/settings/ethernet/EthernetDevInfo.java
+new file mode 100644
+index 0000000..c2be1d1
+--- /dev/null
++++ b/src/com/android/settings/ethernet/EthernetDevInfo.java
+@@ -0,0 +1,145 @@
++package com.android.settings.ethernet;
++
++import android.os.Parcel;
++import android.os.Parcelable;
++import android.os.Parcelable.Creator;
++
++public class EthernetDevInfo {
++    /**
++     * The ethernet interface is configured by dhcp
++     */
++    public static final String ETHERNET_CONN_MODE_DHCP= "dhcp";
++    /**
++     * The ethernet interface is configured manually
++     */
++    public static final String ETHERNET_CONN_MODE_MANUAL = "manual";
++
++    private String dev_name;
++    private String ipaddr;
++    private String netmask;
++    private String route;
++    private String dns;
++    private String mode;
++    private boolean proxyOn;
++    private String proxyIp;
++    private String proxyPort;
++    private String proxyExclusionList;
++    private String gateway;
++
++    public EthernetDevInfo () {
++        dev_name = null;
++        ipaddr = null;
++        dns = null;
++        route = null;
++        netmask = null;
++        mode = ETHERNET_CONN_MODE_DHCP;
++        proxyIp = null;
++        proxyPort = null;
++        gateway = null;
++        proxyOn = false;
++    }
++
++    public void setProxyOn(boolean value) {
++        this.proxyOn = value;
++    }
++
++    public boolean isProxyOn() {
++        return this.proxyOn;
++    }
++
++    /**
++     * save interface name into the configuration
++     */
++    public void setIfName(String ifname) {
++        this.dev_name = ifname;
++    }
++
++    /**
++     * Returns the interface name from the saved configuration
++     * @return interface name
++     */
++    public String getIfName() {
++        return this.dev_name;
++    }
++
++    public void setIpAddress(String ip) {
++        this.ipaddr = ip;
++    }
++
++    public String getIpAddress() {
++        return this.ipaddr;
++    }
++
++    public void setGateway(String gw) {
++        this.gateway = gw;
++    }
++
++    public String getGateway() {
++        return this.gateway;
++    }
++
++    public void setNetMask(String ip) {
++        this.netmask = ip;
++    }
++
++    public String getNetMask( ) {
++        return this.netmask;
++    }
++
++    public void setRouteAddr(String route) {
++        this.route = route;
++    }
++
++    public String getRouteAddr() {
++        return this.route;
++    }
++
++    public void setDnsAddr(String dns) {
++        this.dns = dns;
++    }
++
++    public String getDnsAddr() {
++        return this.dns;
++    }
++
++    public void setProxyAddr(String ip) {
++        this.proxyIp = ip;
++    }
++
++    public String getProxyAddr() {
++        return this.proxyIp;
++    }
++
++    public void setProxyPort(String port) {
++        this.proxyPort = port;
++    }
++
++    public String getProxyPort() {
++        return this.proxyPort;
++    }
++
++    public String getProxyExclusionList() {
++        return proxyExclusionList;
++    }
++
++    public void setProxyExclusionList(String proxyExclusionList) {
++        this.proxyExclusionList = proxyExclusionList;
++    }
++
++    /**
++     * Set ethernet configuration mode
++     * @param mode {@code ETHERNET_CONN_MODE_DHCP} for dhcp {@code ETHERNET_CONN_MODE_MANUAL} for manual configure
++     * @return
++     */
++    public boolean setConnectMode(String mode) {
++        if (mode.equals(ETHERNET_CONN_MODE_DHCP) || mode.equals(ETHERNET_CONN_MODE_MANUAL)) {
++            this.mode = mode;
++            return true;
++        }
++        return false;
++    }
++
++    public String getConnectMode() {
++        return this.mode;
++    }
++}
+diff --git a/src/com/android/settings/ethernet/EthernetEnabler.java b/src/com/android/settings/ethernet/EthernetEnabler.java
+new file mode 100644
+index 0000000..9d18090
+--- /dev/null
++++ b/src/com/android/settings/ethernet/EthernetEnabler.java
+@@ -0,0 +1,49 @@
++package com.android.settings.ethernet;
++
++import android.content.Context;
++import android.net.NetworkInfo;
++import android.text.TextUtils;
++import android.util.Log;
++import com.android.settings.ethernet.EthernetManager;
++import com.android.settings.R;
++
++public class EthernetEnabler {
++    public static final String TAG = "SettingsEthEnabler";
++
++    private Context mContext;
++    private EthernetManager mEthManager;
++    private EthernetConfigDialog mEthConfigDialog;
++    private EthernetAdvDialog mEthAdvancedDialog;
++
++    public void setConfigDialog (EthernetConfigDialog Dialog) {
++        mEthConfigDialog = Dialog;
++    }
++
++    public void setmEthAdvancedDialog(EthernetAdvDialog Dialog) {
++        this.mEthAdvancedDialog = Dialog;
++    }
++
++    public EthernetEnabler(Context context) {
++        mContext = context;
++        mEthManager = new EthernetManager(context);
++        mEthManager.resetInterface();
++    }
++
++    public EthernetManager getManager() {
++        return mEthManager;
++    }
++
++    public void resume() {
++    }
++
++    public void pause() {
++    }
++
++    public void setEthEnabled() {
++        if (mEthManager.isConfigured() != true) {
++            mEthConfigDialog.show();
++        } else {
++            mEthManager.resetInterface();
++        }
++    }
++}
+diff --git a/src/com/android/settings/ethernet/EthernetManager.java b/src/com/android/settings/ethernet/EthernetManager.java
+new file mode 100644
+index 0000000..96a913b
+--- /dev/null
++++ b/src/com/android/settings/ethernet/EthernetManager.java
+@@ -0,0 +1,525 @@
++package com.android.settings.ethernet;
++
++import java.net.InetAddress;
++import java.net.UnknownHostException;
++import java.util.List;
++import java.util.Iterator;
++import android.annotation.SdkConstant;
++import android.annotation.SdkConstant.SdkConstantType;
++import android.os.Handler;
++import android.os.RemoteException;
++import android.util.Log;
++import android.content.Context;
++import android.provider.Settings;
++import android.os.ServiceManager;
++import android.os.IBinder;
++import android.content.ContentResolver;
++import android.os.INetworkManagementService;
++import android.net.ConnectivityManager;
++import android.net.DhcpInfo;
++import android.net.NetworkUtils;
++import android.net.LinkAddress;
++import android.net.NetworkInfo;
++import android.net.ProxyInfo;
++import android.net.NetworkInfo.DetailedState;
++import android.net.LinkProperties;
++import android.net.InterfaceConfiguration;
++import android.net.ProxyInfo;
++import android.os.HandlerThread;
++import android.os.Looper;
++import android.os.Message;
++import android.os.Parcel;
++import android.os.SystemProperties;
++import android.content.SharedPreferences;
++import android.content.SharedPreferences.Editor;
++import android.widget.Toast;
++import android.net.LinkAddress;
++import android.net.StaticIpConfiguration;
++import android.net.IpConfiguration;
++import android.net.IpConfiguration.*;
++import java.util.ArrayList;
++import java.net.Inet4Address;
++import java.lang.Integer;
++import com.android.settings.R;
++
++public class EthernetManager {
++    public static final String TAG = "EthernetManager";
++
++    public static final int ETHERNET_DEVICE_SCAN_RESULT_READY = 0;
++    public static final String ETHERNET_STATE_CHANGED_ACTION =
++            "android.net.ethernet.ETHERNET_STATE_CHANGED";
++    public static final String NETWORK_STATE_CHANGED_ACTION =
++            "android.net.ethernet.STATE_CHANGE";
++
++    public static final String EXTRA_NETWORK_INFO = "networkInfo";
++    public static final String EXTRA_ETHERNET_STATE = "ETHERNET_state";
++    public static final String EXTRA_PREVIOUS_ETHERNET_STATE = "previous_ETHERNET_state";
++
++    /**
++     * The lookup key for a {@link android.net.LinkProperties} object associated with the
++     * Ethernet network. Retrieve with
++     * {@link android.content.Intent#getParcelableExtra(String)}.
++     * @hide
++     */
++    public static final String EXTRA_LINK_PROPERTIES = "linkProperties";
++
++    /**
++     * The lookup key for a {@link android.net.LinkCapabilities} object associated with the
++     * Ethernet network. Retrieve with
++     * {@link android.content.Intent#getParcelableExtra(String)}.
++     * @hide
++     */
++    public static final String EXTRA_LINK_CAPABILITIES = "linkCapabilities";
++
++    public static final int ETHERNET_STATE_UNKNOWN = 0;
++    public static final int ETHERNET_STATE_DISABLED = 1;
++    public static final int ETHERNET_STATE_ENABLED = 2;
++    private static final int ETHERNET_HAS_CONFIG = 1;
++
++    /** @hide */
++    public static final int DATA_ACTIVITY_NONE         = 0x00;
++    /** @hide */
++    public static final int DATA_ACTIVITY_IN           = 0x01;
++    /** @hide */
++    public static final int DATA_ACTIVITY_OUT          = 0x02;
++    /** @hide */
++    public static final int DATA_ACTIVITY_INOUT        = 0x03;
++
++    private android.net.EthernetManager ethernetService;
++    private Context mContext;
++    private String[] DevName;
++    private int mEthState= ETHERNET_STATE_UNKNOWN;
++    private INetworkManagementService mNMService;
++    private DhcpInfo mDhcpInfo;
++    private String mode;
++    private String ip_address;
++    private String dns_address;
++    private ConnectivityManager mConnMgr;
++
++    public EthernetManager(Context context) {
++        mContext = context;
++
++        DevName = new String[1];
++        String sIfaceMatch = context.getResources().getString(
++                        com.android.internal.R.string.config_ethernet_iface_regex);
++
++        DevName[0] = "eth0";//mTracker.getLinkProperties().getInterfaceName();
++
++        mConnMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
++        IBinder b = ServiceManager.getService(Context.NETWORKMANAGEMENT_SERVICE);
++        ethernetService = (android.net.EthernetManager) context.getSystemService(Context.ETHERNET_SERVICE);
++        mNMService = INetworkManagementService.Stub.asInterface(b);
++
++        try {
++            final String[] ifaces = mNMService.listInterfaces();
++            for (String iface : ifaces) {
++                if (iface.matches(sIfaceMatch)) {
++                    DevName[0] = iface;
++                    Log.d(TAG, "We will operate iface:" + DevName[0]);
++                    break;
++                }
++            }
++        } catch (RemoteException e) {
++            Log.e(TAG, "Could not get list of interfaces " + e);
++        }
++
++        HandlerThread dhcpThread = new HandlerThread("DHCP Handler Thread");
++        dhcpThread.start();
++        mDhcpInfo = new DhcpInfo();
++    }
++
++    /**
++     * check if the ethernet service has been configured.
++     * @return {@code true} if configured {@code false} otherwise
++     */
++    public boolean isConfigured() {
++        //return "1".equals(SystemProperties.get("net."+ DevName[0] + ".config", "0"));
++        return (getSharedPreMode() != null);
++    }
++
++    /**
++     * Return the saved ethernet configuration
++     * @return ethernet interface configuration on success, {@code null} on failure
++     */
++    public synchronized EthernetDevInfo getSavedConfig() {
++        if (!isConfigured())
++            return null;
++        EthernetDevInfo info = new EthernetDevInfo();
++        info.setConnectMode(getSharedPreMode());
++        info.setIfName(DevName[0]);
++
++        if (info.getConnectMode().equals(EthernetDevInfo.ETHERNET_CONN_MODE_DHCP)) {
++            Log.e(TAG,"getSavedConfig : DHCP : ");
++            getDhcpInfo();
++        }else{
++            Log.e(TAG,"getSavedConfig : static : ");
++            info.setIpAddress(getSharedPreIpAddress());
++            info.setDnsAddr(getSharedPreDnsAddress());
++            info.setGateway(getSharedPreGateway());
++            info.setNetMask(getSharedPreNetMask());
++            info.setProxyOn(isProxyOn());
++            info.setProxyAddr(getSharedPreProxyAddress());
++            info.setProxyPort(getSharedPreProxyPort());
++            info.setProxyExclusionList(getSharedPreProxyExclusionList());
++        }
++        return info;
++    }
++
++    /**
++     * update a ethernet interface information
++     * @param info  the interface infomation
++     */
++    private int scanDevice() {
++        return 1;
++    }
++
++    /**
++     * get all the ethernet device names
++     * @return interface name list on success, {@code null} on failure
++     */
++    public String[] getDeviceNameList() {
++        return (scanDevice() > 0) ? DevName : null;
++    }
++
++    private void setInterfaceUp(String InterfaceName)
++    {
++        try {
++            mNMService.setInterfaceUp(InterfaceName);
++        } catch (RemoteException re){
++            Log.e(TAG,"Set interface up failed: " + re);
++        } catch (IllegalStateException e) {
++            Log.e(TAG,"Set interface up fialed: " + e);
++        }
++
++    }
++
++    void configureInterface(EthernetDevInfo info) {
++        IpConfiguration ipcfg = new IpConfiguration();
++        if (info.getConnectMode().equals(EthernetDevInfo.ETHERNET_CONN_MODE_DHCP)) {
++            Log.d(TAG, "configureInterface : DHCP");
++            ipcfg.ipAssignment = IpAssignment.DHCP;
++        } else {
++            //InterfaceConfiguration ifcg = null;
++            Log.d(TAG, "configureInterface : Static IP =" + info.getIpAddress());
++            try {
++                ipcfg = ethernetService.getConfiguration(info.getIfName());
++                ipcfg.ipAssignment = IpAssignment.STATIC;
++
++                Inet4Address iNetmask = (Inet4Address)InetAddress.getByName(info.getNetMask());
++                int netmask = NetworkUtils.inetAddressToInt(iNetmask);
++                int prefixLength = NetworkUtils.netmaskIntToPrefixLength(netmask);
++                LinkAddress ipAddr = new LinkAddress(info.getIpAddress()+"/"+ Integer.toString(prefixLength));
++                InetAddress gwAddr = InetAddress.getByName(info.getGateway());
++
++                StaticIpConfiguration config = new StaticIpConfiguration();
++                config.ipAddress = ipAddr;
++                config.gateway = gwAddr;
++
++                if (info.getDnsAddr() != null)
++                    config.dnsServers.add(InetAddress.getByName(info.getDnsAddr()));
++
++                ipcfg.staticIpConfiguration = config;
++
++                Log.d(TAG,"Static IP configuration succeeded");
++            } catch (UnknownHostException e){
++                Log.e(TAG,"Static IP configuration failed: " + e);
++            } catch (IllegalStateException e) {
++                Log.e(TAG,"Static IP configuration fialed: " + e);
++            } catch (IllegalArgumentException e) {
++                Log.e(TAG,"Wrong Static IP: " + e);
++                Toast.makeText(mContext, "Illegal address inputed. You can not access the Internet.",Toast.LENGTH_SHORT).show();
++            } catch (Exception err) {
++                Log.e(TAG, "Exception in setting Static IP");
++                Toast.makeText(mContext, "We got exception when set the static IP.",Toast.LENGTH_SHORT).show();
++            }
++            Log.d(TAG, "set ip manually " + info.toString());
++            //SystemProperties.set("net.dns1", info.getDnsAddr());
++            //SystemProperties.set("net." + info.getIfName() + ".dns1",info.getDnsAddr());
++        }
++
++        if(isProxyOn()){
++            Log.e(TAG, "configureInterface : isProxyOn() : ProxySettings.STATIC");
++            ipcfg.proxySettings = ProxySettings.STATIC;
++            ipcfg.httpProxy = new ProxyInfo(getSharedPreProxyAddress(),Integer.parseInt(getSharedPreProxyPort()),getSharedPreProxyExclusionList());
++        }else{
++            Log.e(TAG, "configureInterface : !isProxyOn() : ProxySettings.NONE");
++            ipcfg.proxySettings = ProxySettings.NONE;
++        }
++        Log.e(TAG, "configureInterface : ethernetService.setConfiguration(ipcfg)");
++        ethernetService.setConfiguration(info.getIfName(), ipcfg);
++    }
++
++    public EthernetDevInfo getDhcpInfo() {
++        EthernetDevInfo infotemp = new EthernetDevInfo();
++        String [] DevName = getDeviceNameList();
++        infotemp.setIfName(DevName[0]);
++        infotemp.setConnectMode(EthernetDevInfo.ETHERNET_CONN_MODE_DHCP);
++        String ip;
++        try {
++            ip = mConnMgr.getLinkProperties(ConnectivityManager.TYPE_ETHERNET).getAddresses().toString();
++        } catch (Exception err) {
++            ip = "[]";
++            Log.w(TAG, "getDhcpInfo error:" + err.toString());
++        }
++        if (ip != "[]" )
++            infotemp.setIpAddress(ip.substring(2, ip.length()-1));
++        String dns = " ";
++        try {
++        int i = 0;
++            for( InetAddress d : mConnMgr.getLinkProperties(ConnectivityManager.TYPE_ETHERNET).getDnsServers()) {
++                String temp = d.toString();
++                if (temp != null)
++                    dns = temp.substring(1, temp.length()-1);
++                break;
++            }
++        } catch (Exception err) {
++            Log.w(TAG, "getDhcpInfo error:" + err.toString());
++        }
++        infotemp.setDnsAddr(dns);// now only use dns1, need optimization later here.
++
++        Log.e(TAG, "getDhcpInfo : proxyAddress = "+getSharedPreProxyAddress());
++        Log.e(TAG, "getDhcpInfo : proxyPort = "+getSharedPreProxyPort());
++        Log.e(TAG, "getDhcpInfo : proxyExclusionList = "+getSharedPreProxyExclusionList());
++
++        if (isProxyOn())
++            Log.e(TAG, "getDhcpInfo : isProxyOn()= true");
++        else
++            Log.e(TAG, "getDhcpInfo : isProxyOn()= false");
++
++        infotemp.setProxyOn(isProxyOn());	
++        infotemp.setProxyAddr(getSharedPreProxyAddress());
++        infotemp.setProxyPort(getSharedPreProxyPort());
++        infotemp.setProxyExclusionList(getSharedPreProxyExclusionList());
++
++        return infotemp;
++    }
++
++    /**
++     * reset ethernet interface
++     * @return true
++     * @throws UnknownHostException
++     */
++    public void resetInterface() {
++        /*
++         * This will guide us to enabled the enabled device
++         */
++        String mInterfaceName ;
++        EthernetDevInfo info = getSavedConfig();
++        if (info != null && isConfigured()) {
++            synchronized (this) {
++                mInterfaceName = info.getIfName();
++                Log.d(TAG, "reset device " + mInterfaceName);
++//                NetworkUtils.resetConnections(mInterfaceName, NetworkUtils.RESET_ALL_ADDRESSES);
++            }
++//            if (!NetworkUtils.stopDhcp(mInterfaceName)) {
++//                Log.d(TAG, "Could not stop DHCP");
++//            }
++            configureInterface(info);
++        } else {
++            //First boot using AOSP dhcp
++            updateDevInfo(getDhcpInfo());
++        }
++    }
++
++    /**
++     * update a ethernet interface information
++     * @param info  the interface infomation
++     */
++    public synchronized void updateDevInfo(EthernetDevInfo info) {
++       // sharedPreferencesStore(info);
++        SettingGlobalStore(info);
++
++        SystemProperties.set("net.dns1", info.getDnsAddr());
++        SystemProperties.set("net." + info.getIfName() + ".dns1",info.getDnsAddr());
++        SystemProperties.set("net." + info.getIfName() + ".dns2", "0.0.0.0");
++    }
++
++/*
++        public static final String ETHERNET_MODE = "dhcp";
++        public static final String ETHERNET_STATIC_IP = "ethernet_static_ip";
++        public static final String ETHERNET_STATIC_DNS = "ethernet_static_dns";
++        public static final String ETHERNET_STATIC_GATEWAY = "ethernet_static_gateway";
++        public static final String ETHERNET_STATIC_MASK = "ethernet_static_mask";
++        public static final String ETHERNET_PROXY_MODE_ON = "ethernet_proxy_mode_on";
++        public static final String ETHERNET_PROXY_IP = "ethernet_proxy_IP";
++        public static final String ETHERNET_PROXY_PORT = "ethernet_proxy_port";
++        public static final String ETHERNET_BY_PASS_PROXY = "ethernet_by_pass_proxy";
++*/
++
++    public void SettingGlobalStore(EthernetDevInfo info){
++        Settings.Global.putString(mContext.getContentResolver(), Settings.Global.ETHERNET_MODE, info.getConnectMode());
++        Settings.Global.putString(mContext.getContentResolver(), Settings.Global.ETHERNET_STATIC_IP, info.getIpAddress());
++        Settings.Global.putString(mContext.getContentResolver(), Settings.Global.ETHERNET_STATIC_DNS, info.getDnsAddr());
++        Settings.Global.putString(mContext.getContentResolver(), Settings.Global.ETHERNET_STATIC_GATEWAY, info.getGateway());
++        Settings.Global.putString(mContext.getContentResolver(), Settings.Global.ETHERNET_STATIC_MASK, info.getNetMask());
++        Settings.Global.putInt(mContext.getContentResolver(), Settings.Global.ETHERNET_PROXY_MODE_ON, info.isProxyOn() ? 1:0);
++        Settings.Global.putString(mContext.getContentResolver(), Settings.Global.ETHERNET_PROXY_IP, info.getProxyAddr());
++        Settings.Global.putString(mContext.getContentResolver(), Settings.Global.ETHERNET_PROXY_PORT, info.getProxyPort());
++        Settings.Global.putString(mContext.getContentResolver(), Settings.Global.ETHERNET_BY_PASS_PROXY, info.getProxyExclusionList());
++    }
++
++   /*
++   public SharedPreferences sharedPreferences(){
++        SharedPreferences sp = this.mContext.getSharedPreferences("ethernet", Context.MODE_WORLD_WRITEABLE);
++        return sp;
++    }
++
++    public void sharedPreferencesStore(EthernetDevInfo info){
++        Editor editor = sharedPreferences().edit();
++        try {
++            editor.putString("conn_mode",info.getConnectMode());
++            editor.putString("mIpaddr",info.getIpAddress());
++            editor.putString("mDns",info.getDnsAddr());
++            editor.putString("mGateway", info.getGateway());
++            editor.putString("mNetMask", info.getNetMask());
++
++            editor.putString("mProxyIp",info.getProxyAddr());
++            editor.putString("mProxyPort", info.getProxyPort());
++            editor.putString("mProxyExclusionList", info.getProxyExclusionList());
++            } catch (NumberFormatException e) {
++                e.printStackTrace();
++            }
++        editor.commit();
++    }
++    */
++
++    public String getSharedPreMode(){
++        String temp = null;
++        try {
++            //temp = sharedPreferences().getString("conn_mode",null);
++            temp = Settings.Global.getString(mContext.getContentResolver(), Settings.Global.ETHERNET_MODE);
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
++        return temp;
++    }
++
++    public String getSharedPreIpAddress(){
++        String temp = null;
++        try {
++            //temp = sharedPreferences().getString("mIpaddr",null);
++            temp = Settings.Global.getString(mContext.getContentResolver(), Settings.Global.ETHERNET_STATIC_IP);
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
++        return temp;
++    }
++
++    public String getSharedPreDnsAddress(){
++        String temp = null;
++        try {
++            //temp = sharedPreferences().getString("mDns",null);
++            temp = Settings.Global.getString(mContext.getContentResolver(), Settings.Global.ETHERNET_STATIC_DNS);
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
++        return temp;
++    }
++
++    public String getSharedPreGateway(){
++        String temp = null;
++        try {
++            //temp = sharedPreferences().getString("mGateway",null);
++            temp = Settings.Global.getString(mContext.getContentResolver(), Settings.Global.ETHERNET_STATIC_GATEWAY);
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
++        return temp;
++    }
++
++    public String getSharedPreNetMask(){
++        String temp = null;
++        try {
++            //temp = sharedPreferences().getString("mNetMask",null);
++            temp = Settings.Global.getString(mContext.getContentResolver(), Settings.Global.ETHERNET_STATIC_MASK);
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
++        return temp;
++    }
++
++    public boolean isProxyOn(){
++        boolean temp = false;
++        try {
++            //temp = sharedPreferences().getString("mNetMask",null);
++            if(Settings.Global.getInt(mContext.getContentResolver(), Settings.Global.ETHERNET_PROXY_MODE_ON)==1)
++                temp = true;
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
++        return temp;
++    }
++
++    public String getSharedPreProxyAddress(){
++        String temp = null;
++        try {
++            //temp = sharedPreferences().getString("mProxyIp",null);
++            temp = Settings.Global.getString(mContext.getContentResolver(), Settings.Global.ETHERNET_PROXY_IP);
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
++        return temp;
++    }
++
++    public String getSharedPreProxyPort(){
++        String temp = null;
++        try {
++            //temp = sharedPreferences().getString("mProxyPort",null);
++            temp = Settings.Global.getString(mContext.getContentResolver(), Settings.Global.ETHERNET_PROXY_PORT);
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
++        return temp;
++    }
++
++    public String getSharedPreProxyExclusionList(){
++        String temp = null;
++        try {
++            //temp = sharedPreferences().getString("mProxyExclusionList",null);
++            temp = Settings.Global.getString(mContext.getContentResolver(), Settings.Global.ETHERNET_BY_PASS_PROXY);
++        } catch (Exception e) {
++            e.printStackTrace();
++        }
++        return temp;
++    }
++
++    /*
++    public void setProxy(){
++        String exclusionList = null;
++        exclusionList=getSharedPreProxyExclusionList();
++
++        if(!isProxyOn())
++            return;
++
++        if (getSharedPreProxyAddress() == null || getSharedPreProxyPort() == null) {
++            mConnMgr.setGlobalProxy(null);
++            SystemProperties.set("rw.HTTP_PROXY", "");
++            return;
++        }
++        LinkProperties lp = mConnMgr.getLinkProperties(ConnectivityManager.TYPE_ETHERNET);
++        if (lp == null)
++            return;
++        int port = 0;
++        try {
++            port = Integer.parseInt(getSharedPreProxyPort());
++        } catch(NumberFormatException e){
++        }
++        ProxyInfo proxyProperties =
++            new ProxyInfo(getSharedPreProxyAddress(), port, exclusionList);
++        mConnMgr.setGlobalProxy(null);
++        mConnMgr.setGlobalProxy(proxyProperties);
++        SystemProperties.set("rw.HTTP_PROXY", proxyProperties.getHost() + ":" + proxyProperties.getPort());
++    }
++
++    public void initProxy(){
++        EthernetDevInfo info = getSavedConfig();
++        if (info != null) {
++            updateDevInfo(info);
++            setProxy();
++    }
++    */
++
++    public boolean isEthernetConnect(){
++        return mConnMgr.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET).isConnected();
++    }
++}
+diff --git a/src/com/android/settings/ethernet/EthernetSettings.java b/src/com/android/settings/ethernet/EthernetSettings.java
+new file mode 100644
+index 0000000..2c75644
+--- /dev/null
++++ b/src/com/android/settings/ethernet/EthernetSettings.java
+@@ -0,0 +1,84 @@
++package com.android.settings.ethernet;
++
++import java.util.ArrayList;
++import java.util.Arrays;
++import java.util.Collection;
++import java.util.List;
++import android.util.Log;
++import android.app.Activity;
++import android.app.AlertDialog;
++import android.app.Dialog;
++import android.app.admin.DevicePolicyManager;
++import android.content.ActivityNotFoundException;
++import android.content.ComponentName;
++import android.content.Context;
++import android.content.DialogInterface;
++import android.content.Intent;
++import android.content.res.Resources;
++import android.net.ConnectivityManager;
++import android.net.NetworkInfo;
++import android.net.Uri;
++import android.os.Bundle;
++import android.os.SystemProperties;
++import android.os.UserHandle;
++import android.os.UserManager;
++import android.support.v7.preference.Preference;
++import android.support.v7.preference.Preference.OnPreferenceChangeListener;
++import android.support.v7.preference.Preference.OnPreferenceClickListener;
++import android.support.v7.preference.PreferenceScreen;
++import android.provider.SearchIndexableResource;
++import android.provider.Settings;
++import android.text.TextUtils;
++import com.android.settings.search.BaseSearchIndexProvider;
++import com.android.settings.search.Indexable;
++import com.android.settings.ethernet.EthernetConfigDialog;
++import com.android.settings.ethernet.EthernetAdvDialog;
++import com.android.settings.ethernet.EthernetEnabler;
++import com.android.settings.RestrictedSettingsFragment;
++import com.android.settings.R;
++
++public class EthernetSettings extends RestrictedSettingsFragment {
++    private static final String TAG = "EthernetSettings";
++    private static final String KEY_CONFIGUE_ETH = "configue_ethernet";
++    private static final String KEY_ENTRY_ETH_ADV = "ethernet_advanced_setting";
++    private Preference mEntry,mEntryAdv;
++    private EthernetEnabler mEthEnabler;
++    private EthernetConfigDialog mEthConfigDialog;
++    private EthernetAdvDialog mEthAdvancedDialog;	
++
++    public EthernetSettings() {
++        super(null);
++    }
++
++    public void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        addPreferencesFromResource(R.xml.ethernet_settings);
++        mEthEnabler = new EthernetEnabler(getActivity());
++        mEntry = findPreference(KEY_CONFIGUE_ETH);
++        mEntry.setOnPreferenceClickListener(new OnPreferenceClickListener() {
++            @Override
++            public boolean onPreferenceClick(Preference preference) {
++                mEthConfigDialog = new EthernetConfigDialog(getActivity(), mEthEnabler);
++                mEthEnabler.setConfigDialog(mEthConfigDialog);
++                mEthConfigDialog.show();
++                return true;
++            }
++        });
++
++        mEntryAdv = findPreference(KEY_ENTRY_ETH_ADV);
++        mEntryAdv.setOnPreferenceClickListener(new OnPreferenceClickListener() {
++            @Override
++            public boolean onPreferenceClick(Preference preference) {
++                mEthAdvancedDialog = new EthernetAdvDialog(getActivity(),mEthEnabler);
++                mEthEnabler.setmEthAdvancedDialog(mEthAdvancedDialog);
++                mEthAdvancedDialog.show();
++                return true;
++            }
++        });
++    }
++
++    @Override
++    public int getMetricsCategory() {
++        return 0;
++    }
++}
+\ No newline at end of file
+-- 
+2.7.4
+
