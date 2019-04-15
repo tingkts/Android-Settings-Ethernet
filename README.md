@@ -21,5 +21,5 @@ So, the purpose of this patches are for demo to add the Ethernet entry in Settin
 <img src="https://github.com/tingkts/Android-Framework-Feature-Settings-Ethernet-entry/blob/master/screenshot/04_Settings_ethernet_sub_page_config_ethernet.png" width="50%" height="50%" />
 
 
-> 图为： Settings > Network & Internet > Ethernet > Advanced ehternet config
+> 图为： Settings > Network & Internet > Ethernet > Advanced ethernet config
 <img src="https://github.com/tingkts/Android-Framework-Feature-Settings-Ethernet-entry/blob/master/screenshot/05_Settings_ethernet_sub_page_http_proxy.png" width="50%" height="50%" />
