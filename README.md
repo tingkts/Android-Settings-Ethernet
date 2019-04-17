@@ -1,4 +1,4 @@
-AOSP codebase is base on Android P
+AOSP codebase is base on Android P (android 9.0.0)
 
 AOSP isn't Ethernet settings in the native system app, Settings in default.
 
